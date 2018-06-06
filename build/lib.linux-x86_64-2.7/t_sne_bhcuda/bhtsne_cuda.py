@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """
 A simple Python wrapper for the t_sne_bhcuda binary.
@@ -41,7 +42,7 @@ Version:            0.2.0
 
 from os.path import abspath, pardir, dirname, isfile, isdir, join as path_join
 from struct import calcsize, pack, unpack
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, PIPE
 from platform import system
 import sys
 
@@ -54,8 +55,8 @@ DEFAULT_THETA = 0.5
 DEFAULT_RANDOM_SEED = -1
 DEFAULT_ETA = 200
 DEFAULT_ITERATIONS = 500
-DEFAULT_GPU_MEM = 0.9
-DEFAULT_SEED = 100000
+DEFAULT_GPU_MEM = 0.8
+DEFAULT_SEED = 0
 ###
 
 
@@ -65,7 +66,7 @@ def _read_unpack(fmt, fh):
 
 def _find_exe_dir():
     exe_dir = 'bin'
-    exe_file = 'tsne'
+    exe_file = 't_sne_bhcuda'
     if system() == 'Windows':
         exe_dir = 'Scripts'
         exe_file = 't_sne_bhcuda.exe'
@@ -152,10 +153,10 @@ def t_sne(samples, use_scikit=False, files_dir=None, results_filename='result.da
                            eta, no_dims, iterations, seed, gpu_mem, verbose, randseed)
         del samples
         # Call t_sne_bhcuda and let it do its thing
-        with Popen([_find_exe_dir(), ], cwd=files_dir, stdout=PIPE) \
+        with Popen([_find_exe_dir(), ], cwd=files_dir, stdout=PIPE, bufsize=1, universal_newlines=True) \
                 as t_sne_bhcuda_p:
             for line in iter(t_sne_bhcuda_p.stdout):
-                print (line)
+                print line
                 sys.stdout.flush()
             t_sne_bhcuda_p.wait()
         assert not t_sne_bhcuda_p.returncode, ('ERROR: Call to t_sne_bhcuda exited '
